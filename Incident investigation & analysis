@@ -1,0 +1,30 @@
+Last week, an unauthorized data read occurred on the production database at 2:00 AM. Management handed you an excerpt from the CloudTrail/Audit logs:
+JSON
+{
+  "timestamp": "2026-09-24T02:14:05Z",
+  "identity_type": "IAM Role",
+  "principal": "arn:aws:iam::123456789:role/DevOps-Deployment-Role",
+  "source_ip": "198.51.100.42",
+  "action": "rds:DownloadDBClusterSnapshot",
+  "status": "SUCCESS"
+}
+Your Task: Answer the following forensic questions using the AAA framework principles:
+Identification & Authentication: Did a human directly log in, or was a workload identity used? Which account/role was invoked?
+Authorization: Was the action permitted by default, or was there an explicit policy allowing it?
+Accounting/Forensics: Based on the source IP and timestamp, what anomaly or red flag stands out that suggests a security incident? (Hint: Think about when developers usually deploy code and where traffic originates).
+
+1. Using the AAA forensic framework, it shows that a workload identity made the access. The rationale for the reasoning is that "IAM Role," not "IAM user," is the "Identity type" and the principal is "DevOps-Deployment-Role". The identity type and principal suggest a service logged in on behalf of a user. 
+This is consistent with how roles function in AWS, which can be assumed by services EC2 instances, and CI/CD pipelines for access. 
+
+2. Was the action permitted by default, or was there an explicit policy allowing it?
+Not permitted by default. In AWS, everything is implicitly denied unless explicitly allowed by an IAM policy. Since the status is "SUCCESS," an explicit Allow policy attached to the DevOps-Deployment-Role must have granted the rds:DownloadDBClusterSnapshot permission.
+
+3. Forensic analysis. 3 things stood out: 
+a. Suspicious time: The snapshot download occurred at 02:14 AM. That's an atypical business time for a deployment role. Most development and deployment activities occur during normal working hours or scheduled maintenance windows.
+
+b. Unusual action: 
+Downloading a database snapshot can expose an entire copy of production data. This is a common technique used for data exfiltration.
+
+c. Mismatch of roles and actions
+A role named DevOps-Deployment-Role would typically be expected to deploy infrastructure or applications. Downloading a production database snapshot may fall outside its normal operational purpose, suggesting abuse of privileges or credential compromise.
+
