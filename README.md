@@ -95,3 +95,8 @@ Step 4: Test the separation of Duties. Both users have list access to see the S3
 Similarly, bukunmi-db can't read/write data in fintech-dev-na, as the image below shows: 
 
 <img width="2815" height="821" alt="image" src="https://github.com/user-attachments/assets/985f37ac-1d1c-4b96-a46f-be575c943779" />
+
+.............................................................................................................................................
+
+<img width="1400" height="996" alt="image" src="https://github.com/user-attachments/assets/70c0ca64-6233-453a-8be1-3df4ef621307" />
+
